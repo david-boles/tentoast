@@ -1,14 +1,14 @@
 {
   "name": "tentoast",
   "version": "0.0.0",
-  "description": "Experimental package, inspired by unified, for creating custom (abstract) syntax trees using javascript template strings.",
+  "description": "Experimental package, inspired by unified, for creating custom (abstract) syntax trees using javascript template expressions.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/david476/jtoast.git"
+    "url": "git+https://github.com/david476/tentoast.git"
   },
   "keywords": [
     "template",
@@ -19,7 +19,7 @@
   "author": "David Boles",
   "license": "0BSD",
   "bugs": {
-    "url": "https://github.com/david476/jtoast/issues"
+    "url": "https://github.com/david476/tentoast/issues"
   },
-  "homepage": "https://github.com/david476/jtoast#readme"
+  "homepage": "https://github.com/david476/tentoast#readme"
 }
