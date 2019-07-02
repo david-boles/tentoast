@@ -1,0 +1,25 @@
+{
+  "name": "jtoast",
+  "version": "0.0.0",
+  "description": "Experimental package, inspired by unified, for creating custom (abstract) syntax trees using javascript template strings.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/david476/jtoast.git"
+  },
+  "keywords": [
+    "template",
+    "string",
+    "ast",
+    "tree"
+  ],
+  "author": "David Boles",
+  "license": "0BSD",
+  "bugs": {
+    "url": "https://github.com/david476/jtoast/issues"
+  },
+  "homepage": "https://github.com/david476/jtoast#readme"
+}
