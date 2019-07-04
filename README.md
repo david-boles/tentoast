@@ -93,7 +93,7 @@ Calls `converter` with `["hello", "7"], false`
 
 
 # Node Interaction Providers
-Tentoast also provides a nice way to expose other functions that interact with nodes but rely on tentoast functionality via the `providers` option. These should be functions that consume a tentoast instance and options object and return a value (generally a function) to be exposed on the instance under the same key. If you want to minimize typing while using these, you can always add a bit of boilerplate:
+Tentoast also provides a nice way to expose other functions that interact with nodes but rely on tentoast functionality via the `providers` option. These should be functions that consume a tentoast instance and options object and return a value (generally a function) to be exposed on the instance under the same key as their provider from `options`. If you want to minimize typing while using these, you can always add a bit of boilerplate:
 
 ```javascript
 const {s, ps, ...} = ttt
