@@ -2,9 +2,9 @@
 Experimental package, inspired by unified, for creating custom (abstract) syntax trees using javascript template strings.
 
 # About the Trees
-Just like a [unist](https://github.com/syntax-tree/unist), nodes are objects containing a string `type` field and optionally a `children` array (all "parent" nodes should have it set, even if its empty). Nodes should use the `value` field if they have one and should not use the `data` field.
+Just like a [unist](https://github.com/syntax-tree/unist), nodes are objects containing a string `type` field and optionally a `children` array (all "parent" nodes should have it set, even if it's empty). Nodes should use the `value` field if they have one and should not use the `data` field.
 
-Unlike unists though, the tree roots are simply lists, making it easier to merge them together at the same level without losing any potential associated fields.
+Unlike unists though, the tree roots are simply arrays, making it easier to merge them together at the same level without losing any potential associated fields.
 
 # Usage
 Import the package and create an instance, optionally providing configuration:
@@ -14,7 +14,7 @@ import tentoast from 'tentoast'
 
 const ttt = tentoast({
   // Defaults:
-  converter: (val, fromString) => [val], // Can return either a list of nodes and values, a node, or a value. Return a list containing the value to preserve list values.
+  converter: (val, fromString) => [val], // Should return an array of nodes/ values, can return a single non-array node/ value.
   noSmartText: false,
   providers: {
     s: sectionsProvider
@@ -28,7 +28,7 @@ The returned function can then be used as a tag for template strings:
 const tree = ttt`This is some ${'text'}. And here are some ${{type: 'strong', children: [{type: 'text', value: 'nodes'}]}}${{type: 'text', value: '!'}}`
 ```
 
-The function runs all the substrings (`fromString === true`) and values (`fromString === false`) through `converter` (if supplied), merges the results together, and then converts any non-nodes to text nodes with a value of `String(value)`. Finally, any neighboring text nodes are merged together and empty ones are removed (assuming `noSmartText` isn't truthy). The example above would return (with defaults):
+The function runs all the substrings (`fromString === true`) and values (`fromString === false`) through `converter`, merges the results together, and then converts any non-nodes to text nodes with a value of `String(value)`. Finally, any neighboring text nodes are merged together and empty ones are removed (assuming `noSmartText` isn't truthy). The example above would return (with defaults):
 
 ```json
 [
@@ -52,7 +52,7 @@ The function runs all the substrings (`fromString === true`) and values (`fromSt
 ]
 ```
 
-Alternatively, the function can be called with just a list of nodes/values, a node, or a value, in which case the behavior is identical except that `fromString` is always false. For example:
+Alternatively, the function can be called with just an array of nodes/values, or a single non-array node/ value. If called this way, `fromString` is usually always false:
 
 ```
 ttt("hello")
@@ -78,7 +78,7 @@ ttt([["hello", "7"]])
 
 Calls `converter` with `["hello", "7"], false`
 
-> Note:
+> NOTE:
 > 
 > ```
 > ttt(["hello"])
@@ -87,7 +87,7 @@ Calls `converter` with `["hello", "7"], false`
 > Calls `converter` with `"hello", true` as the arguments cannot be differentiated from
 >
 > ```
-> ttl`hello`
+> ttt`hello`
 > ```
 
 
@@ -168,3 +168,23 @@ function sectionsProvider(ttt, options) {
   }
 }
 ```
+
+
+
+# Helper Functions
+The tentoast package also exports a few helper functions that are used internally:
+
+## `areTagInputs(strings, ...values)`
+Determines whether its inputs could be the result of a using it as a tag function, e.g.:
+```
+areTagInputs``
+areTagInputs`hello ${'world'}`
+areTagInputs(['hello world'])
+```
+All evaluate to `true`.
+
+## `massageToArray(array)`
+Returns `array` if it actually is one, otherwise returns `[ array ]`.
+
+## `isNode(value)`
+Determines if a value is a node.
