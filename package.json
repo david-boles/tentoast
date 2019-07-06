@@ -21,5 +21,6 @@
   "bugs": {
     "url": "https://github.com/david476/tentoast/issues"
   },
-  "homepage": "https://github.com/david476/tentoast#readme"
+  "homepage": "https://github.com/david476/tentoast#readme",
+  "type": "module"
 }

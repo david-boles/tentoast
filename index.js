@@ -1,45 +1,25 @@
 // IMPLEMENTATION
 
 const defaults = {
-  converter: (val, _) => [val],
+  converter: (val) => [val],
   noSmartText: false,
   providers: {
-    s: sectionsProvider
+    s: sectionProvider
   }
 }
 
 export default function tentoast(options) {
-  if(options !== undefined && typeof options !== 'object') {
-    throw new Error('tentoast options must either be undefined or an object')
-  }
-  options = Object.assign({}, defaults, options) // Assigning undefined works fine; don't overwrite passed object
+  options = Object.assign({}, defaults, options) // Don't overwrite passed object; assigning undefined works fine
 
   function instance(strings, ...values) {
-    const converted = []
-
-    function doConvert(value, fromString) {
-      const output = massageToArray(options.converter(value, fromString))
-      converted.push(...output)
-    }
-
-    if(areTagInputs(strings, ...values)) { // Used as tag function
-      doConvert(strings[0], true)
-      for(let i = 1; i < strings.length; i++) {
-        doConvert(values[i - 1], false)
-        doConvert(strings[i], true)
-      }
-    }else { // Passed either array or single
-      if(values.length === 0) {
-        throw new Error('when not used as tag function, tentoast instances only accept one argument')
-      } 
-      values = massageToArray(strings)
-      for(let value of values) {
-        doConvert(value, false)
-      }
+    // Convert values and merge with strings
+    const merged = [strings[0]]
+    for(let i = 1; i < strings.length; i++) {
+      merged.push(...massageToArray(options.converter(values[i - 1])), strings[i]);
     }
 
     // Make everything into nodes
-    const nodes = converted.map(value => {
+    let nodes = merged.map(value => {
       if(isNode(value)) {
         return value
       }else {
@@ -61,6 +41,8 @@ export default function tentoast(options) {
           }
           if(nodes.length > 0 && nodes[nodes.length - 1].type === 'text') {
             nodes[nodes.length - 1].value += node.value
+          }else {
+            nodes.push(node)
           }
         }else {
           nodes.push(node)
@@ -72,7 +54,7 @@ export default function tentoast(options) {
   }
 
   Object.keys(options.providers).forEach(providerKey =>
-    instance[providerKey] = options[providerKey](instance, options))
+    instance[providerKey] = options.providers[providerKey](instance, options))
 
   return instance
 }
@@ -80,20 +62,8 @@ export default function tentoast(options) {
 
 
 // HELPERS
-
-export function areTagInputs(strings, ...values) {
-  if(!Array.isArray(strings)) {
-    return false
-  }
-  if(strings.length !== (values.length + 1)) { // Also implicitly checks for empty strings array
-    return false
-  }
-  for(let string of strings) {
-    if(typeof string !== 'string') {
-      return false
-    }
-  }
-  return true
+export function isNode(value) {
+  return typeof value === 'object' && typeof value.type === 'string'
 }
 
 export function massageToArray(array) {
@@ -103,18 +73,14 @@ export function massageToArray(array) {
   return array
 }
 
-export function isNode(value) {
-  return typeof value === 'object' && typeof value.type === 'string'
-}
-
 
 
 // INTERACTION PROVIDERS
 
-export function sectionsProvider(ttt, _) {
+export function sectionProvider(ttt, _) {
   return function(headerStrings, ...headerValues) {
     return function(bodyStrings, ...bodyValues) {
-      return {
+      return [{
         "type": "section" ,
         "children": [
           {
@@ -126,7 +92,7 @@ export function sectionsProvider(ttt, _) {
             "children": ttt(bodyStrings, ...bodyValues)
           }
         ]
-      }
+      }]
     }
   }
 }

@@ -14,10 +14,10 @@ import tentoast from 'tentoast'
 
 const ttt = tentoast({
   // Defaults:
-  converter: (val, fromString) => [val], // Should return an array of nodes/ values, can return a single non-array node/ value.
+  converter: (val) => val, // Should return an array of nodes/ values, can return a single node/ non-array value.
   noSmartText: false,
   providers: {
-    s: sectionsProvider
+    s: sectionProvider
   }
 })
 ```
@@ -28,20 +28,20 @@ The returned function can then be used as a tag for template strings:
 const tree = ttt`This is some ${'text'}. And here are some ${{type: 'strong', children: [{type: 'text', value: 'nodes'}]}}${{type: 'text', value: '!'}}`
 ```
 
-The function runs all the substrings (`fromString === true`) and values (`fromString === false`) through `converter`, merges the results together, and then converts any non-nodes to text nodes with a value of `String(value)`. Finally, any neighboring text nodes are merged together and empty ones are removed (assuming `noSmartText` isn't truthy). The example above would return (with defaults):
+The function runs all the template values through `converter`, merges the results together, and then converts any non-nodes to text nodes with a value of `String(value)`. Finally, any neighboring text nodes are merged together and empty ones are removed (assuming `noSmartText` isn't truthy). The example above would return (with defaults):
 
 ```json
 [
   {
     "type": "text",
-    "value": "This is some text. And here is a "
+    "value": "This is some text. And here are some "
   },
   {
     "type": "strong",
     "children": [
       {
         "type": "text",
-        "value": "node"
+        "value": "nodes"
       }
     ]
   },
@@ -51,44 +51,6 @@ The function runs all the substrings (`fromString === true`) and values (`fromSt
   }
 ]
 ```
-
-Alternatively, the function can be called with just an array of nodes/values, or a single non-array node/ value. If called this way, `fromString` is usually always false:
-
-```
-ttt("hello")
-```
-
-Calls `converter` with `"hello", false`.
-
-```
-ttt(7)
-```
-
-Calls `converter` with `7, false`
-
-```
-ttt(["hello", "7"])
-```
-
-Calls `converter` with `"hello", false` and `7, false`.
-
-```
-ttt([["hello", "7"]])
-```
-
-Calls `converter` with `["hello", "7"], false`
-
-> NOTE:
-> 
-> ```
-> ttt(["hello"])
-> ```
-> 
-> Calls `converter` with `"hello", true` as the arguments cannot be differentiated from
->
-> ```
-> ttt`hello`
-> ```
 
 
 
@@ -101,8 +63,8 @@ const {s, ps, ...} = ttt
 
 These are the defaults (providers are also exported from the package), you can add/ override them with your own:
 
-## Sections (`s`: `sectionsProvider`)
-This produces `section` nodes composed of one `section-header` and one `section-body` children. The initial call passes the parameters to the tentoast instace to get the header children and returns a function that consumes the body arguments to produce the full section node. For example:
+## Sections (`s`: `sectionProvider`)
+This produces `section` nodes composed of one `section-header` and one `section-body` children. The initial call passes the parameters to the tentoast instace to get the header children and returns a function that consumes the body arguments to produce the full section node in an array. For example:
 
 ```javascript
 const tree = 
@@ -114,41 +76,37 @@ It would usually have many lines, or possibly other ${{type: 'text', value: 'thi
 produces:
 
 ```json
-{
-  "type": "section" ,
-  "children": [
-    {
-      "type": "section-header",
-      "children": [
-        {
-          "type": "text",
-          "value": "This is a Section Header"
-        }
-      ]
-    },
-    {
-      "type": "section-body",
-      "children": [
-        {
-          "type": "text",
-          "value": "This is the body!\nIt would usually have many lines, or possibly other things."
-        }
-      ]
-    }
-  ]
-}
+[
+  {
+    "type": "section",
+    "children": [
+      {
+        "type": "section-header",
+        "children": [
+          {
+            "type": "text",
+            "value": "This is a Section Header"
+          }
+        ]
+      },
+      {
+        "type": "section-body",
+        "children": [
+          {
+            "type": "text",
+            "value": "This is the body!\nIt would usually have many lines, or possibly other things."
+          }
+        ]
+      }
+    ]
+  }
+]
 ```
 
-Of course, you can always call the functions manually:
-
-```
-ttt.s("Header")("Body")
-```
-
-For reference on creating your own interaction providers, here's the whole source for `sectionsProvider`:
+For reference on creating your own interaction providers, here's the whole source for `sectionProvider`:
 
 ```javascript
-function sectionsProvider(ttt, options) {
+function sectionProvider(ttt, options) {
   return function(headerStrings, ...headerValues) {
     return function(bodyStrings, ...bodyValues) {
       return {
@@ -174,17 +132,8 @@ function sectionsProvider(ttt, options) {
 # Helper Functions
 The tentoast package also exports a few helper functions that are used internally:
 
-## `areTagInputs(strings, ...values)`
-Determines whether its inputs could be the result of a using it as a tag function, e.g.:
-```
-areTagInputs``
-areTagInputs`hello ${'world'}`
-areTagInputs(['hello world'])
-```
-All evaluate to `true`.
-
-## `massageToArray(array)`
-Returns `array` if it actually is one, otherwise returns `[ array ]`.
-
 ## `isNode(value)`
 Determines if a value is a node.
+
+## `massageToArray(value)`
+Returns `value` if it's an array, otherwise returns `[ value ]`.
