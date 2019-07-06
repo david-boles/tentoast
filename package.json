@@ -1,6 +1,6 @@
 {
   "name": "tentoast",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Experimental package, inspired by unified, for creating custom (abstract) syntax trees using javascript template expressions.",
   "main": "index.js",
   "scripts": {
